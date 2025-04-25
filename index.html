@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporting Rubric</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .name-entry {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .name-entry input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 300px;
+      max-width: 90%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #343a40;
+      color: white;
+    }
+    tr:nth-child(even) td {
+      background-color: #f1f1f1;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 0.25rem;
+    }
+    .total {
+      font-weight: bold;
+      text-align: right;
+      margin-top: 1rem;
+    }
+    .result {
+      text-align: right;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+    button {
+      margin-top: 1.5rem;
+      display: block;
+      margin-left: auto;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      th, td {
+        padding: 0.75rem;
+      }
+      th {
+        background-color: #495057;
+      }
+    }
+  </style>
+  <script>
+    function calculateTotal() {
+      let inputs = document.querySelectorAll("input[type='number']");
+      let total = 0;
+      let maxScore = inputs.length * 4;
+
+      inputs.forEach(input => {
+        total += parseInt(input.value || 0);
+      });
+
+      let mpcScore = (total / maxScore) * 50 + 50;
+      let grade = "";
+
+      if (mpcScore >= 95) grade = "A+";
+      else if (mpcScore >= 90) grade = "A";
+      else if (mpcScore >= 85) grade = "B+";
+      else if (mpcScore >= 80) grade = "B";
+      else if (mpcScore >= 75) grade = "C+";
+      else if (mpcScore >= 70) grade = "C";
+      else if (mpcScore >= 60) grade = "D";
+      else grade = "F";
+
+      document.getElementById("totalScore").innerText = total;
+      document.getElementById("percentage").innerText = mpcScore.toFixed(1) + "%";
+      document.getElementById("grade").innerText = grade;
+    }
+
+    function exportToExcel() {
+      const studentName = document.getElementById("studentName").value;
+      const rows = document.querySelectorAll("table tr");
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      csvContent += "Student Name," + studentName + "\n\n";
+
+      rows.forEach(row => {
+        let rowData = [];
+        row.querySelectorAll("th, td").forEach(cell => {
+          const input = cell.querySelector("input");
+          rowData.push(input ? input.value : cell.innerText);
+        });
+        csvContent += rowData.join(",") + "\n";
+      });
+
+      csvContent += "\nTotal Score," + document.getElementById("totalScore").innerText + "\n";
+      csvContent += "MPC Report Score," + document.getElementById("percentage").innerText + "\n";
+      csvContent += "Grade," + document.getElementById("grade").innerText + "\n";
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "rubric_report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</head>
+<body>
+  <h1>Reporting Rubric</h1>
+  <div class="name-entry">
+    <label for="studentName">Student Name: </label>
+    <input type="text" id="studentName" name="studentName" placeholder="Enter name here">
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Criteria</th>
+        <th>Excellent (4)</th>
+        <th>Good (3)</th>
+        <th>Satisfactory (2)</th>
+        <th>Needs Improvement (1)</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Content Accuracy</td>
+        <td>All information is accurate, thorough, and relevant.</td>
+        <td>Minor errors or missing details, but generally accurate and relevant.</td>
+        <td>Some inaccuracies or missing key points.</td>
+        <td>Many inaccuracies or off-topic content.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+      <tr>
+        <td>Organization & Structure</td>
+        <td>Clear introduction, body, and conclusion. Logical flow of ideas.</td>
+        <td>Mostly organized; minor lapses in flow or clarity.</td>
+        <td>Some disorganization; jumps between ideas.</td>
+        <td>Disorganized or hard to follow.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+      <tr>
+        <td>Clarity & Grammar</td>
+        <td>Writing is clear, concise, and free of grammar/spelling errors.</td>
+        <td>Mostly clear; few minor grammar/spelling mistakes.</td>
+        <td>Some awkward phrasing or multiple grammar errors.</td>
+        <td>Frequent grammar/spelling errors that affect readability.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+      <tr>
+        <td>Depth of Analysis</td>
+        <td>Demonstrates strong understanding and deep analysis of the topic.</td>
+        <td>Some analysis present; shows good understanding.</td>
+        <td>Basic analysis; limited insight or depth.</td>
+        <td>Lacks analysis or demonstrates weak understanding.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+      <tr>
+        <td>Use of Sources / Evidence</td>
+        <td>Effectively supports ideas with relevant evidence or references.</td>
+        <td>Some use of evidence; mostly relevant.</td>
+        <td>Limited or weak use of supporting details.</td>
+        <td>No supporting evidence or sources cited.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+      <tr>
+        <td>Presentation / Formatting</td>
+        <td>Professionally formatted, follows all guidelines (font, headings, citations).</td>
+        <td>Follows most formatting guidelines.</td>
+        <td>Some formatting issues; minor errors in structure.</td>
+        <td>Poor formatting; does not follow guidelines.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+      <tr>
+        <td>Creativity / Originality</td>
+        <td>Original thinking; engaging and thoughtful approach to the topic.</td>
+        <td>Some originality; ideas are mostly fresh.</td>
+        <td>Few original ideas; mostly summary or repetition.</td>
+        <td>Lacks creativity; heavily copied or generic.</td>
+        <td><input type="number" min="1" max="4" onchange="calculateTotal()"></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="total">
+    Total Score: <span id="totalScore">0</span>
+  </div>
+  <div class="result">
+    MPC Report Score: <span id="percentage">0%</span><br />
+    Grade: <span id="grade">F</span>
+  </div>
+  <button onclick="exportToExcel()">Export to Excel</button>
+</body>
+</html>
